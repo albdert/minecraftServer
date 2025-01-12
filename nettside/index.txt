@@ -1,0 +1,10 @@
+fetch('https://api.mcsrvstat.us/3/158.248.114.241:25565')
+            .then(res => {return res.json()})
+            .then(data => {console.log(data)})
+
+
+
+158.248.114.241:25565
+
+const serverStatus = data.online;
+                const statusElement = document.getElementById("serverStatus");

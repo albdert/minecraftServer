@@ -1,0 +1,19 @@
+
+
+<html>
+  <body>
+    <form>
+      <label for="param">Parameter: </label>
+      <input id="param"/>
+    </form>
+    <script>
+      (function(){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const ref = urlParams.get('ref')
+        document.getElementById('param').value = ref;
+      })();
+    </script>
+  </body>
+</html>
+
