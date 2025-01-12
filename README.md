@@ -1,0 +1,2 @@
+# minecraftServer
+Minecraft server status
