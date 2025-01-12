@@ -1,27 +1,202 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-p {
-  background-image: url('bakgrunn.jpg');
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Server status</title>
+     <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .bg {
+            background-image: url('bakgrunn.jpg');
+
+            filter: blur(4px);
+            -webkit-filter: blur(4px);
+            
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .bg-text {
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0, 0.4); /* Black w/opacity/see-through */
+            color: white;
+            font-weight: bold;
+            border: 3px solid #383838;
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -20%);
+            z-index: 2;
+            width: 50%;
+            padding: 10px;
+            text-align: center;
+        }
+        .button {
+            background-color: #3f4744; 
+            border: none;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 25px;
+            margin: 10px 2px;
+            cursor: pointer;
+        }
+        .input {
+            background-color: white; 
+            border: 2px solid #383838;
+            color: rgb(0, 0, 0);
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 25px;
+            margin: 10px 2px;
+            cursor: pointer;
+        }
+        table, th, td {
+            border:3px solid #383838;
+            border-collapse: collapse;
+            border-style: solid;
+            box-shadow: 0 0 0 1px #383838 inset;
+            text-align: left;
+            vertical-align: bottom;
+        }
+       
+        td {
+            padding-left: 20px;
+            vertical-align: top;
+        }
+        img {
+            object-fit: fill;
+            width: 100%;
+            height: auto;
+            display: flex;
+        }
+
+        .float {
+            text-align: left;
+            margin-left: auto; margin-right: auto;
+            position: sticky;
+        }
+        .test {border-style:none; box-shadow: none !important; border: none !important}
+        .center {margin-left: auto; margin-right: auto;}
+        .buttonFetch {border-radius: 4px;}
+        .inputFelt {border-radius: 4px;}
+        </style> 
 </head>
+
 <body>
+    <div class="bg"></div>
 
-<h2>Background Image</h2>
+    <div class="bg-text">
+        <h1 style="font-size:50px">Server info</h1>
+    
+        <div class="float" style="width: 60%">
+            <input class="input inputFelt" type="text" id="serverip" placeholder="Enter Server IP" style="width:45%">
+            <button class="button buttonFetch" onclick="fetchData()" style="width:45%">Sjekk server status</button><br>
+        </div>
+        
+        <!--
+        <table style="width: 60%;" class="center">
+            <tr class="test">
+                <th class="test">
+                    <input class="input inputFelt" type="text" id="serverip" placeholder="Enter Server IP" style="width:55%;">
+                </th>
+                <th>
+                    <button class="button buttonFetch" onclick="fetchData()" style="width:40%">Sjekk server status</button><br>
+                </th>
+            </tr>
+        </table>
+        -->
+        
 
-<p>You can specify background images<br>
-for any visible HTML element.<br>
-In this example, the background image<br>
-is specified for a div element.<br>
-By default, the background-image<br>
-will repeat itself in the direction(s)<br>
-where it is smaller than the element<br>
-where it is specified. (Try resizing the<br>
-browser window to see how the<br>
-background image behaves.</p>
+        <table style="width:60%;" class="center infotable">
+            <tr>
+                <th style="width: 129px; height: 129px">
+                    <img class="center" src="default.png" alt="No information" id="serverIcon">
+                </th>
+                <th id="status" style="font-size: 25px; padding-left: 20px">Server status: </th>
+            </tr>
+            <tr style="text-align: left;">
+                <td style="height: 30px; font-size: 20px">MOTD</td>
+                <td style="height: 30px; font-size: 20px" id="motd"> ... </td>
+            </tr>
+            <tr style="text-align: left;">
+                <td style="height: 30px; font-size: 20px">Spillere</td>
+                <td style="height: 30px; font-size: 20px; table-layout: auto; white-space:pre" id="online">14</td>
+            </tr>
+        </table>
+    </div>
+
+    
+
+   
+    
+    <!--test -->
+    <script>
+        let spillere = "";
+
+        (function(){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const ip = urlParams.get('ip')
+        if (ip != null){
+            document.getElementById('serverip').value = ip;
+        }
+        else {
+            document.getElementById('serverip').value = "";
+        }
+        })();
+
+        async function fetchData(){
+            try{
+                const serverip = document.getElementById("serverip").value.toLowerCase(); 
+
+                const res = await fetch(`https://api.mcsrvstat.us/3/${serverip}`);
+                const data = await res.json();
+                console.log(data);
+
+               /* Henter data fra API og printer ut i riktig format */
+                if(data.online == true) {
+                    document.getElementById("status").innerHTML = "Server status: Online"
+                }
+                else{
+                    document.getElementById("status").innerHTML = "Server status: Offline"
+                }
+             
+                if(data.players.online > 0){
+                    for(let i = 0; i < data.players.online; i++){
+                        spillere = spillere + `\n${data.players.list[i].name}`
+                    }
+                    document.getElementById("online").innerHTML = 
+                        `${data.players.online}/20: ${spillere}`;
+                    spillere = "";
+                }
+                else{
+                    document.getElementById("online").innerHTML = `${data.players.online}/20`;
+                }
+            
+                document.getElementById("motd").innerHTML = data.motd.html;
+
+                /* Serverikon */
+                const imgElement = document.getElementById("serverIcon")
+                imgElement.src = `https://api.mcsrvstat.us/icon/${serverip}`;
+                
+            }
+            catch(error){
+                console.error(error);
+            }
+        }
+    </script>
 
 </body>
 </html>
-
