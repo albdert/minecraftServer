@@ -1,3 +1,4 @@
 # minecraftServer
-Minecraft server status
+Minecraft server-status
+
 https://albdert.github.io/minecraftServer/?ip=
